@@ -1,4 +1,6 @@
-// 提取类型信息
+/** @file iterator_base_types.h
+ * 	实现通用类型 traits
+ */
 
 #ifndef _LEESTL_TYPE_TRAITS_H_
 #define _LEESTL_TYPE_TRAITS_H_ 1
@@ -11,10 +13,10 @@ namespace leestl {
 	// integral_constant
 	template <typename T, T v>
 	struct integral_constant {
-		static constexpr T value = v;
-		typedef T value_type;
+		static constexpr T              value = v;
+		typedef T                       value_type;
 		typedef integral_constant<T, v> type;
-		constexpr operator value_type() const noexcept { return value; }
+		constexpr                       operator value_type() const noexcept { return value; }
 	};
 
 	using true_type = integral_constant<bool, true>;
@@ -22,6 +24,10 @@ namespace leestl {
 
 	template <bool b>
 	using bool_constant = integral_constant<bool, b>;
-}
+
+	template <typename...>
+	using void_type = void;
+
+}    // namespace leestl
 
 #endif
