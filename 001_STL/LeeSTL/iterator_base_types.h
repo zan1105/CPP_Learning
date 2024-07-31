@@ -17,10 +17,7 @@ namespace leestl {
 	struct random_acess_interator_tag {};     // 随机访问迭代器类型
 
 	template <
-	    typename _Category,
-	    typename T,
-	    typename _Distance = ptrdiff_t,
-	    typename _Pointer = T *,
+	    typename _Category, typename T, typename _Distance = ptrdiff_t, typename _Pointer = T *,
 	    typename _Reference = T &>
 	struct iterator {
 		typedef _Category  iterator_category;
@@ -37,10 +34,8 @@ namespace leestl {
 	struct _iterator_traits<
 	    _Iterator,
 	    void_type<
-	        typename _Iterator::iterator_category,
-	        typename _Iterator::value_type,
-	        typename _Iterator::difference_type,
-	        typename _Iterator::pointer,
+	        typename _Iterator::iterator_category, typename _Iterator::value_type,
+	        typename _Iterator::difference_type, typename _Iterator::pointer,
 	        typename _Iterator::reference>> {
 		typedef _Iterator::iterator_category iterator_category;
 		typedef _Iterator::value_type        value_type;
