@@ -33,9 +33,9 @@ AlwaysBreakAfterReturnType: None
 # 总是在template声明后换行
 AlwaysBreakTemplateDeclarations: true
 # false表示函数实参要么都在同一行，要么都各自一行
-BinPackArguments: false
+BinPackArguments: true
 # false表示所有形参要么都在同一行，要么都各自一行
-BinPackParameters: false
+BinPackParameters: true
 # 大括号的换行
 BraceWrapping:
   AfterClass: false
@@ -52,7 +52,7 @@ BreakBeforeBraces: Custom
 # 构造函数的初始化列表换行
 BreakConstructorInitializers: AfterColon
 # 每行字符的限制，0表示没有限制
-ColumnLimit: 120
+ColumnLimit: 100
 # 构造函数的初始化列表的缩进宽度
 ConstructorInitializerIndentWidth: 8
 # 延续的行的缩进宽度
