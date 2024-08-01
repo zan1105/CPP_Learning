@@ -1,5 +1,5 @@
 /** @file iterator_base_types.h
- * 	实现迭代器类型 traits 和通用迭代器
+ * 	这个文件实现迭代器类型 traits 和通用迭代器
  */
 
 #ifndef _LEESTL_ITERATOR_BASE_TYPES_H_

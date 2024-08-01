@@ -1,4 +1,4 @@
-/** @file iterator_base_types.h
+/** @file allocator.h
  * 	这个文件是配置器的实现，负责对象的内存管理
  */
 

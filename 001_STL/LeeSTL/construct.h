@@ -1,5 +1,5 @@
-/** @file iterator_base_types.h
- * 	实现迭代器类型 traits 和通用迭代器
+/** @file construct.h
+ * 	这个文件实现对象的构造函数和析构函数
  */
 
 #ifndef _LEESTL_CONSTRUCT_H_

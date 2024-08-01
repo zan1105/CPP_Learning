@@ -1,5 +1,5 @@
-/** @file iterator_base_types.h
- * 	实现通用类型 traits
+/** @file type_traits.h
+ * 	这个文件实现通用类型 traits
  */
 
 #ifndef _LEESTL_TYPE_TRAITS_H_

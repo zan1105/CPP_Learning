@@ -1,5 +1,5 @@
 /** @file iterator.h
- * 	实现 reverse_iterator, back_insert_iterator,
+ * 	这个文件实现 reverse_iterator, back_insert_iterator,
  * 	front_insert_iterator, insert_iterator, __normal_iterator
  * 	迭代器、相关函数、运算符重载
  */
