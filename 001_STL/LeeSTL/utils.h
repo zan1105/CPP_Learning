@@ -45,6 +45,18 @@ namespace leestl {
 		return static_cast<T &&>(arg);
 	};
 
+	/**
+	 * @brief 获取变量的地址
+	 *
+	 * @tparam T 变量类型
+	 * @param value 变量
+	 * @return T* 地址
+	 */
+	template <typename T>
+	inline constexpr T *address_of(T &value) noexcept {
+		return &value;
+	}
+
 }    // namespace leestl
 
 #endif
