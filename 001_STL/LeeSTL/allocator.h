@@ -57,9 +57,9 @@ namespace leestl {
 	}
 
 	template <typename T>
-	void allocator<T>::deallocate(T* ptr, size_type) {
+	void allocator<T>::deallocate(T* ptr, size_type n) {
 		if (ptr == nullptr) return;
-		::operator delete ptr;
+		::operator delete(ptr, n * sizeof(T));
 	}
 
 	template <typename T>
