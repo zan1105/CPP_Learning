@@ -83,7 +83,7 @@ namespace leestl {
 		/**
 		 * @brief 移动构造函数
 		 */
-		vector(vector&&) noexcept = default;    // todo
+		vector(vector&&) noexcept = default;
 
 		/**
 		 * @brief 通过初始化列表构造 vector
@@ -91,7 +91,9 @@ namespace leestl {
 		 * @param il  初始化列表
 		 * @param alloc 配置器
 		 */
-		vector(std::initializer_list<value_type> il) {}    // todo
+		vector(std::initializer_list<value_type> il) {
+			_range_initialize(il.begin(), il.end(), leestl::random_acess_interator_tag());
+		}
 
 		/**
 		 * @brief 通过迭代器区间构造 vector
@@ -131,7 +133,24 @@ namespace leestl {
 			end_of_storage = start + n;
 		}
 
-		// 分配空间时检查剩余空间并计算重新分配的空间大小
+		template <typename _II>
+		void _range_initialize(_II first, _II last, input_interator_tag) {
+			try {
+				for (; first != last; ++first) emplace_back(*first);
+			} catch (...) {
+				clear();
+				throw;
+			}
+		}
+
+		template <typename _FI>
+		void _range_initialize(_FI first, _FI last, forward_interator_tag) {
+			const size_type n = leestl::distance(first, last);
+			_create_storage(_check_init_len(n));
+			finish = uninitialized_copy(first, last, start);
+		}
+
+		// 重新分配空间时检查剩余空间并计算新空间大小
 		size_type _check_len(size_type n, const char* s) const {
 			if (max_size() - size() < n) std::__throw_length_error(s);
 
