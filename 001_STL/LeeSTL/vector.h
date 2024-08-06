@@ -75,7 +75,10 @@ namespace leestl {
 		 *
 		 * @param x 要复制的 vector
 		 */
-		vector(const vector& x) {}    // todo
+		vector(const vector& x) {
+			_create_storage(x.size());
+			finish = uninitialized_copy(x.begin(), x.end(), start);
+		}
 
 		/**
 		 * @brief 移动构造函数
