@@ -112,7 +112,10 @@ namespace leestl {
 		/**
 		 * @brief 析构函数
 		 */
-		~vector() {}    // todo
+		~vector() {
+			leestl::destory(start, finish);
+			data_allocator::deallocate(start, capacity());
+		}
 
 		// 容量相关操作
 		bool      empty() const noexcept { return start == finish; }
