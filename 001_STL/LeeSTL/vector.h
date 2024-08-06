@@ -105,7 +105,9 @@ namespace leestl {
 		 * @param alloc
 		 */
 		template <typename _II, typename = leestl::RequireInputIterator<_II>>
-		vector(_II first, _II last) {}    // todo
+		vector(_II first, _II last) {
+			_range_initialize(first, last, leestl::iterator_category_types<_II>());
+		}
 
 		/**
 		 * @brief 析构函数
