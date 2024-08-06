@@ -43,8 +43,63 @@ namespace leestl {
 		iterator end_of_storage;    // 已申请空间的尾部
 
 	public:
-		// 构造函数与析构函数
+		/**
+		 * @brief vector 默认构造函数
+		 *
+		 */
 		vector() = default;
+
+		/**
+		 * @brief 给出 大小和配置器的 vector 构造函数
+		 *
+		 * @param n    vector 的大小
+		 */
+		explicit vector(size_type n) {}
+
+		/**
+		 * @brief 给出大小、初始值和配置器的 vector 构造函数
+		 *
+		 * @param n vector 的大小
+		 * @param value 初始化值
+		 */
+		vector(size_type n, const value_type& value) {}    // todo
+
+		/**
+		 * @brief 复制构造函数
+		 *
+		 * @param x 要复制的 vector
+		 */
+		vector(const vector& x) {}    // todo
+
+		/**
+		 * @brief 移动构造函数
+		 */
+		vector(vector&&) noexcept = default;    // todo
+
+		/**
+		 * @brief 通过初始化列表构造 vector
+		 *
+		 * @param il  初始化列表
+		 * @param alloc 配置器
+		 */
+		vector(std::initializer_list<value_type> il) {}    // todo
+
+		/**
+		 * @brief 通过迭代器区间构造 vector
+		 *
+		 * @tparam _II 迭代器类型
+		 * @tparam
+		 * @param first
+		 * @param last
+		 * @param alloc
+		 */
+		template <typename _II, typename = leestl::RequireInputIterator<_II>>
+		vector(_II first, _II last) {}    // todo
+
+		/**
+		 * @brief 析构函数
+		 */
+		~vector() {}    // todo
 
 		// 容量相关操作
 		bool      empty() const noexcept { return start == finish; }
@@ -53,22 +108,32 @@ namespace leestl {
 		size_type capacity() const noexcept { return size_type(end_of_storage - start); }
 
 	private:
-		// 检查剩余空间并计算重新分配的空间大小
-		size_type _check_len(size_type n, const char* s) const;
+		// 构造函数用该方法检查初始化长度是否合法
+		static size_type _check_init_len(size_type n) const {
+			if (n > max_size())
+				std::__throw_length_error("cannot create vector larger than max_size().");
+			return n;
+		}
 
-		// 重新分配空间后在 pos 插入元素
+		// 创建空间
+		void _create_storage(size_type n) {
+			start = data_allocator::allocate(n);
+			finish = start;
+			end_of_storage = start + n;
+		}
+
+		// 分配空间时检查剩余空间并计算重新分配的空间大小
+		size_type _check_len(size_type n, const char* s) const {
+			if (max_size() - size() < n) std::__throw_length_error(s);
+
+			const size_type len = size() + leestl::max(size(), n);
+			return (len < size() || len > max_size()) ? max_size() : len;
+		}
+
+		// 空间不足时重新分配空间后在 pos 插入元素
 		template <typename... Args>
 		void _realloc_insert(iterator pos, Args&&... args);
 	};
-
-	// 检查剩余空间并计算重新分配的空间大小
-	template <typename T, typename Alloc>
-	vector<T, Alloc>::size_type vector<T, Alloc>::_check_len(size_type n, const char* s) const {
-		if (max_size() - size() < n) std::__throw_length_error(s);
-
-		const size_type len = size() + leestl::max(size(), n);
-		return (len < size() || len > max_size()) > max_size() : len;
-	}
 
 	template <typename T, typename Alloc>
 	template <typename... Args>
