@@ -10,11 +10,12 @@
 
 namespace leestl {
 
-	struct input_interator_tag {};            // 输入迭代器类型
-	struct output_interator_tag {};           // 输出迭代器类型
-	struct forward_interator_tag {};          // 前向迭代器类型
-	struct bidirectional_interator_tag {};    // 双向迭代器类型
-	struct random_acess_interator_tag {};     // 随机访问迭代器类型
+	// 5 种迭代器类型
+	struct input_interator_tag {};
+	struct output_interator_tag {};
+	struct forward_interator_tag : public input_interator_tag {};
+	struct bidirectional_interator_tag : public forward_interator_tag {};
+	struct random_acess_interator_tag : public bidirectional_interator_tag {};
 
 	template <
 	    typename _Category, typename T, typename _Distance = ptrdiff_t, typename _Pointer = T *,
@@ -68,5 +69,12 @@ namespace leestl {
 		typedef const T                   &reference;
 	};
 
+	// 获取迭代器类型
+	template <typename _Iter>
+	using iterator_category_types = typename iterator_traits<_Iter>::iterator_category;
+
+	template <typename _Iter>
+	using RequireInputIterator = typename std::enable_if<
+	    std::is_convertible<iterator_category_types<_Iter>, input_interator_tag>::value>::type;
 }    // namespace leestl
 #endif
