@@ -28,6 +28,9 @@ namespace leestl {
 	template <typename...>
 	using void_type = void;
 
+	template <typename T>
+	constexpr bool is_byte_v = std::disjunction_v<
+	    std::is_same<T, char>, std::is_same<T, signed char>, std::is_same<T, unsigned char> >;
 }    // namespace leestl
 
 #endif
