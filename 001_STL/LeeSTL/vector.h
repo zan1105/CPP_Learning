@@ -54,7 +54,10 @@ namespace leestl {
 		 *
 		 * @param n    vector 的大小
 		 */
-		explicit vector(size_type n) {}
+		explicit vector(size_type n) {
+			_create_storage(_check_init_len(n));
+			finish = uninitialized_fill_n(start, n, value_type());
+		}
 
 		/**
 		 * @brief 给出大小、初始值和配置器的 vector 构造函数
