@@ -60,7 +60,80 @@ namespace leestl {
 	 * @return _FI 目标空间尾部 result + (last - first)
 	 */
 	template <typename _II, typename _FI>
-	inline _FI uninitialized_move(_II first, _II last, _FI result) {}
+	inline _FI uninitialized_move(_II first, _II last, _FI result) {
+		return uninitialized_copy(first, last, result);
+	}
+
+	// 可直接使用 fill 的 unchecked_uninit_fill 实现
+	template <typename _FI, typename T>
+	inline void _unchecked_uninit_fill(_FI first, _FI last, const T &value, leestl::true_type) {
+		leestl::fill(first, last, value);
+	}
+
+	// 显示调用构造函数的 unchecked_uninit_fill 实现
+	template <typename _FI, typename T>
+	inline void _unchecked_uninit_fill(_FI first, _FI last, const T &value, leestl::false_type) {
+		auto curr = first;
+		try {
+			for (; curr != last; ++curr) leestl::construct(leestl::address_of(*curr), value);
+		} catch (...) {
+			leestl::destory(first, curr);
+			throw;
+		}
+	}
+
+	/**
+	 * @brief 未初始化空间[first, last)上填充值为 value 的对象
+	 *
+	 * @tparam _FI 迭代器类型
+	 * @tparam T 填充值类型
+	 * @param first 起始位置迭代器
+	 * @param last 终止位置迭代器
+	 * @param value 填充值
+	 */
+	template <typename _FI, typename T>
+	inline void uninitialized_fill(_FI first, _FI last, const T &value) {
+		leestl::_unchecked_uninit_fill(
+		    first, last, value,
+		    std::is_trivially_copy_assignable<typename iterator_traits<_FI>::value_type>{})
+	}
+
+	// 可直接使用 fill_n 的 unchecked_uninit_fill_n 实现
+	template <typename _FI, typename _Size, typename T>
+	inline _FI _unchecked_uninit_fill_n(_FI first, _Size n, const T &value, leestl::true_type) {
+		return leestl::fill_n(first, n, value);
+	}
+
+	// 显示调用构造函数的 unchecked_uninit_fill_n 实现
+	template <typename _FI, typename _Size, typename T>
+	inline _FI _unchecked_uninit_fill_n(_FI first, _Size n, const T &value, leestl::false_type) {
+		auto curr = first;
+		try {
+			for (; n > 0; --n, ++curr) leestl::construct(leestl::address_of(*curr), value);
+			return curr;
+		} catch (...) {
+			leestl::destory(first, curr);
+			throw;
+		}
+	}
+
+	/**
+	 * @brief 未初始化空间[first, first + n)上填充值为 value 的对象
+	 *
+	 * @tparam _FI 迭代器类型
+	 * @tparam _Size 填充数量类型
+	 * @tparam T 填充值类型
+	 * @param first 起始位置迭代器
+	 * @param n 填充数量
+	 * @param value 填充值
+	 * @return _FI 返回填充结束位置迭代器
+	 */
+	template <typename _FI, typename _Size, typename T>
+	inline _FI uninitialized_fill_n(_FI first, _Size n, const T &value) {    // todo
+		return leestl::_unchecked_uninit_fill_n(
+		    first, n, value,
+		    std::is_trivially_copy_assignable<typename iterator_traits<_FI>::value_type>{});
+	}
 
 	// 一个对象的移动构造方法
 	template <typename Tp, typename Up>
