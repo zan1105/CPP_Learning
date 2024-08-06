@@ -76,5 +76,39 @@ namespace leestl {
 	template <typename _Iter>
 	using RequireInputIterator = typename std::enable_if<
 	    std::is_convertible<iterator_category_types<_Iter>, input_interator_tag>::value>::type;
+
+	// 使用于输入迭代器的 distance 实现
+	template <typename _IT>
+	inline constexpr typename iterator_traits<_IT>::difference_type _distance(
+	    _IT first, _IT last, input_interator_tag) {
+		typename iterator_traits<_IT>::difference_type n = 0;
+		while (first != last) {
+			++first;
+			++n;
+		}
+		return n;
+	}
+
+	// 适用于随机访问迭代器的 distance 实现
+	template <typename _RT>
+	inline constexpr typename iterator_traits<_RT>::difference_type _distance(
+	    _RT first, _RT last, random_acess_interator_tag) {
+		return last - first;
+	}
+
+	/**
+	 * @brief 计算两个迭代器之间的距离
+	 *
+	 * @tparam _Iter 迭代器类型
+	 * @param first 起始位置迭代器
+	 * @param last 终止位置迭代器
+	 * @return 两个迭代器之间的距离
+	 */
+	template <typename _Iter>
+	inline constexpr typename iterator_traits<_Iter>::difference_type distance(
+	    _Iter first, _Iter last) {
+		return _distance(first, last, iterator_category_types<_Iter>{});
+	}
+
 }    // namespace leestl
 #endif
