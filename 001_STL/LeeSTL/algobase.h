@@ -112,6 +112,98 @@ namespace leestl {
 		_unchecked_copy(first, last, result);
 	}
 
+	// 用于非标量的 unchecked_fill 实现
+	template <typename _FI, typename T>
+	inline typename std::enable_if_t<!std::is_scalar_v<T>, void> _unchecked_fill(
+	    _FI first, _FI last, const T &value) {
+		for (; first != last; ++first) *first = value;
+	}
+
+	// 用于标量的 unchecked_fill 实现
+	template <typename _FI, typename T>
+	inline typename std::enable_if_t<std::is_scalar_v<T>, void> _unchecked_fill(
+	    _FI first, _FI last, const T &value) {
+		const T tmp = value;
+		for (; first != last; ++first) *first = tmp;
+	}
+
+	// 针对 单字节类型 提供特化版本的 unchecked_fill 实现
+	template <typename _FI, typename T>
+	inline typename std::enable_if_t<leestl::is_byte_v<T>, void> _unchecked_fill(
+	    _FI first, _FI last, const T &value) {
+		const T tmp = value;
+		if (const size_t n = last - first)
+			__builtin_memset(first, static_cast<unsigned char>(tmp), n);
+	}
+
+	/**
+	 * @brief 把 [first, last) 上的内容都填充为 value
+	 *
+	 * @tparam _FI 目标空间的迭代器类型
+	 * @tparam T 填充的值的类型
+	 * @param first 目标空间的起始位置
+	 * @param last 目标空间的终止位置
+	 * @param value 填充的值
+	 */
+	template <typename _FI, typename T>
+	inline void fill(_FI first, _FI last, const T &value) {
+		_unchecked_fill(first, last, value);
+	}
+
+	// 适用于非标量的 unchecked_fill_n 实现
+	template <typename _OI, typename _Size, typename T>
+	inline typename std::enable_if_t<!std::is_scalar_v<T>, _OI> _unchecked_fill_n_a(
+	    _OI first, _Size n, const T &value) {
+		for (; n > 0; --n, (void)++first) *first = value;
+		return first;
+	}
+
+	// 适用于标量的 unchecked_fill_n 实现
+	template <typename _OI, typename _Size, typename T>
+	inline typename std::enable_if_t<std::is_scalar_v<T>, _OI> _unchecked_fill_n_a(
+	    _OI first, _Size n, const T &value) {
+		const T tmp = value;
+		for (; n > 0; --n, (void)++first) *first = tmp;
+		return first;
+	}
+
+	// 适用于输入迭代器的对象填充
+	template <typename _OI, typename _Size, typename T>
+	inline _OI _unchecked_fill_n(_OI first, _Size n, const T &value, leestl::input_interator_tag) {
+		return _unchecked_fill_n_a(first, n, value);
+	}
+
+	// 适用于输出迭代器的对象填充
+	template <typename _OI, typename _Size, typename T>
+	inline _OI _unchecked_fill_n(_OI first, _Size n, const T &value, leestl::output_interator_tag) {
+		return _unchecked_fill_n_a(first, n, value);
+	}
+
+	// 适用于随机访问迭代器优化的对象填充
+	template <typename _OI, typename _Size, typename T>
+	inline _OI _unchecked_fill_n(
+	    _OI first, _Size n, const T &value, leestl::random_acess_interator_tag) {
+		if (n <= 0) return first;
+		_unchecked_fill(first, first + n, value);
+		return first + n;
+	}
+
+	/**
+	 * @brief 把 [first, first + n) 上的内容都填充为 value
+	 *
+	 * @tparam _OI 目标空间的迭代器类型
+	 * @tparam _Size 填充的数量
+	 * @tparam T 填充的值的类型
+	 * @param first 目标空间的起始位置
+	 * @param n 填充的数量
+	 * @param value 填充的值
+	 * @return _OI 目标空间的尾部
+	 */
+	template <typename _OI, typename _Size, typename T>
+	inline _OI fill_n(_OI first, _Size n, const T &value) {
+		return _unchecked_fill_n(first, n, value, iterator_traits<_OI>::iterator_category);
+	}
+
 }    // namespace leestl
 
 #endif
