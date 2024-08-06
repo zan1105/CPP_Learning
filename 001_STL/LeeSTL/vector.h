@@ -50,7 +50,7 @@ namespace leestl {
 		vector() = default;
 
 		/**
-		 * @brief 给出 大小和配置器的 vector 构造函数
+		 * @brief 给出 大小的 vector 构造函数
 		 *
 		 * @param n    vector 的大小
 		 */
@@ -60,12 +60,15 @@ namespace leestl {
 		}
 
 		/**
-		 * @brief 给出大小、初始值和配置器的 vector 构造函数
+		 * @brief 给出大小、初始值的 vector 构造函数
 		 *
 		 * @param n vector 的大小
 		 * @param value 初始化值
 		 */
-		vector(size_type n, const value_type& value) {}    // todo
+		vector(size_type n, const value_type& value) {
+			_create_storage(_check_init_len(n));
+			finish = uninitialized_fill_n(start, n, value);
+		}
 
 		/**
 		 * @brief 复制构造函数
