@@ -38,11 +38,11 @@ namespace leestl {
 	        typename _Iterator::iterator_category, typename _Iterator::value_type,
 	        typename _Iterator::difference_type, typename _Iterator::pointer,
 	        typename _Iterator::reference>> {
-		typedef _Iterator::iterator_category iterator_category;
-		typedef _Iterator::value_type        value_type;
-		typedef _Iterator::difference_type   difference_type;
-		typedef _Iterator::pointer           pointer;
-		typedef _Iterator::reference         reference;
+		typedef typename _Iterator::iterator_category iterator_category;
+		typedef typename _Iterator::value_type        value_type;
+		typedef typename _Iterator::difference_type   difference_type;
+		typedef typename _Iterator::pointer           pointer;
+		typedef typename _Iterator::reference         reference;
 	};
 
 	// 通用类型提取

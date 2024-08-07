@@ -25,8 +25,13 @@ namespace leestl {
 	protected:
 		_Iterator current;    // 当前迭代器
 
+		typedef iterator_traits<_Iterator> _traits_type;
+
 	public:
-		typedef _Iterator iterator_type;
+		typedef _Iterator                              iterator_type;
+		typedef typename _traits_type::pointer         pointer;
+		typedef typename _traits_type::difference_type difference_type;
+		typedef typename _traits_type::reference       reference;
 
 		// 构造、复制、移动、析构函数
 		reverse_iterator() : current() {}

@@ -27,7 +27,7 @@ namespace leestl {
 	 *  这个函数实现 “完美转发”，即保持参数的左右值等属性，避免拷贝或移动
 	 */
 	template <typename T>
-	constexpr T &&forward(std::remove_reference<T>::type &arg) noexcept {
+	constexpr T &&forward(typename std::remove_reference<T>::type &arg) noexcept {
 		return static_cast<T &&>(arg);
 	};
 
@@ -38,7 +38,7 @@ namespace leestl {
 	 *  这个函数实现 “完美转发”，即保持参数的左右值等属性，避免拷贝或移动
 	 */
 	template <typename T>
-	constexpr T &&forward(std::remove_reference<T>::type &&arg) noexcept {
+	constexpr T &&forward(typename std::remove_reference<T>::type &&arg) noexcept {
 		static_assert(
 		    !std::is_lvalue_reference<T>::value,
 		    "forward must not be used to convert an rvalue to an lvalue");

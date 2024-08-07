@@ -14,24 +14,24 @@
 #include "algo.h"
 
 namespace leestl {
-	template <typename T, typename Alloc = leestl::allocator<T>>
+	template <typename T>
 	class vector {
 		static_assert(!std::is_same<bool, T>::value, "leestl中禁止使用vector<bool>!");
 
 	public:
-		typedef Alloc allocator_type;    // 配置器类型
-		typedef Alloc data_allocator;
+		typedef leestl::allocator<T> allocator_type;    // 配置器类型
+		typedef leestl::allocator<T> data_allocator;
 
 		typedef typename allocator_type::value_type      value_type;
 		typedef typename allocator_type::size_type       size_type;
 		typedef typename allocator_type::difference_type difference_type;
 		typedef typename allocator_type::pointer         pointer;
 		typedef typename allocator_type::const_pointer   const_pointer;
-		typedef typename allocator_type::refernece       refernece;
-		typedef typename allocator_type::const_refernece const_refernece;
+		typedef typename allocator_type::reference       reference;
+		typedef typename allocator_type::const_reference const_reference;
 
 		typedef value_type*                              iterator;
-		typedef const value_type                         const_iterator;
+		typedef const value_type*                        const_iterator;
 		typedef leestl::reverse_iterator<iterator>       reverse_iterator;
 		typedef leestl::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -47,7 +47,7 @@ namespace leestl {
 		 * @brief vector 默认构造函数
 		 *
 		 */
-		vector() = default;
+		vector() noexcept : start(), finish(), end_of_storage() {};
 
 		/**
 		 * @brief 给出 大小的 vector 构造函数
@@ -112,10 +112,24 @@ namespace leestl {
 		/**
 		 * @brief 析构函数
 		 */
-		~vector() {
+		~vector() noexcept {
 			leestl::destory(start, finish);
 			data_allocator::deallocate(start, capacity());
 		}
+
+		// 迭代器相关操作
+		iterator               begin() noexcept { return start; }
+		const_iterator         begin() const noexcept { return start; }
+		iterator               end() noexcept { return finish; }
+		const_iterator         end() const noexcept { return finish; }
+		reverse_iterator       rbegin() noexcept { return reverse_iterator(finish); }
+		const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(finish); }
+		reverse_iterator       rend() noexcept { return reverse_iterator(start); }
+		const_reverse_iterator rend() const noexcept { return const_reverse_iterator(start); }
+		const_iterator         cbegin() const noexcept { return start; }
+		const_iterator         cend() const noexcept { return finish; }
+		const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(finish); }
+		const_reverse_iterator crend() const noexcept { return const_reverse_iterator(start); }
 
 		// 容量相关操作
 		bool      empty() const noexcept { return start == finish; }
@@ -125,8 +139,8 @@ namespace leestl {
 
 	private:
 		// 构造函数用该方法检查初始化长度是否合法
-		static size_type _check_init_len(size_type n) const {
-			if (n > max_size())
+		static size_type _check_init_len(size_type n) {
+			if (n > size_type(-1) / sizeof(T))
 				std::__throw_length_error("cannot create vector larger than max_size().");
 			return n;
 		}
@@ -141,9 +155,9 @@ namespace leestl {
 		template <typename _II>
 		void _range_initialize(_II first, _II last, input_interator_tag) {
 			try {
-				for (; first != last; ++first) emplace_back(*first);
+				// for (; first != last; ++first) emplace_back(*first);// todo
 			} catch (...) {
-				clear();
+				// clear();// todo
 				throw;
 			}
 		}
@@ -168,9 +182,9 @@ namespace leestl {
 		void _realloc_insert(iterator pos, Args&&... args);
 	};
 
-	template <typename T, typename Alloc>
+	template <typename T>
 	template <typename... Args>
-	void vector<T, Alloc>::_realloc_insert(iterator pos, Args&&... args) {
+	void vector<T>::_realloc_insert(iterator pos, Args&&... args) {
 		const size_type new_len = _check_len(size_type(1), "size of vector is to big.");
 		pointer         old_start = start;
 		pointer         old_finish = finish;

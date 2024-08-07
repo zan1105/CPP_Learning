@@ -14,13 +14,13 @@ namespace leestl {
 
 	// 未做初始化的的复制构造方法(可基于移动的复制)
 	template <typename _II, typename _FI>
-	_FI _unchecked_uninit_copy(_II first, _II last, _FI result, leestl::true_type) {
+	_FI _unchecked_uninit_copy(_II first, _II last, _FI result, std::true_type) {
 		return leestl::copy(first, last, result);
 	}
 
 	// 未做初始化的的复制构造方法
 	template <typename _II, typename _FI>
-	_FI _unchecked_uninit_copy(_II first, _II last, _FI result, leestl::false_type) {
+	_FI _unchecked_uninit_copy(_II first, _II last, _FI result, std::false_type) {
 		auto curr = result;
 		try {
 			for (; first != last; ++first, (void)++curr)
@@ -66,13 +66,13 @@ namespace leestl {
 
 	// 可直接使用 fill 的 unchecked_uninit_fill 实现
 	template <typename _FI, typename T>
-	inline void _unchecked_uninit_fill(_FI first, _FI last, const T &value, leestl::true_type) {
+	inline void _unchecked_uninit_fill(_FI first, _FI last, const T &value, std::true_type) {
 		leestl::fill(first, last, value);
 	}
 
 	// 显示调用构造函数的 unchecked_uninit_fill 实现
 	template <typename _FI, typename T>
-	inline void _unchecked_uninit_fill(_FI first, _FI last, const T &value, leestl::false_type) {
+	inline void _unchecked_uninit_fill(_FI first, _FI last, const T &value, std::false_type) {
 		auto curr = first;
 		try {
 			for (; curr != last; ++curr) leestl::construct(leestl::address_of(*curr), value);
@@ -95,18 +95,18 @@ namespace leestl {
 	inline void uninitialized_fill(_FI first, _FI last, const T &value) {
 		leestl::_unchecked_uninit_fill(
 		    first, last, value,
-		    std::is_trivially_copy_assignable<typename iterator_traits<_FI>::value_type>{})
+		    std::is_trivially_copy_assignable<typename iterator_traits<_FI>::value_type>{});
 	}
 
 	// 可直接使用 fill_n 的 unchecked_uninit_fill_n 实现
 	template <typename _FI, typename _Size, typename T>
-	inline _FI _unchecked_uninit_fill_n(_FI first, _Size n, const T &value, leestl::true_type) {
+	inline _FI _unchecked_uninit_fill_n(_FI first, _Size n, const T &value, std::true_type) {
 		return leestl::fill_n(first, n, value);
 	}
 
 	// 显示调用构造函数的 unchecked_uninit_fill_n 实现
 	template <typename _FI, typename _Size, typename T>
-	inline _FI _unchecked_uninit_fill_n(_FI first, _Size n, const T &value, leestl::false_type) {
+	inline _FI _unchecked_uninit_fill_n(_FI first, _Size n, const T &value, std::false_type) {
 		auto curr = first;
 		try {
 			for (; n > 0; --n, ++curr) leestl::construct(leestl::address_of(*curr), value);
@@ -155,13 +155,13 @@ namespace leestl {
 	template <typename _II, typename _FI>
 	inline _FI relocate(_II first, _II last, _FI result) {
 		typedef typename iterator_traits<_II>::value_type type1;
-		typedef typename iterator_traits<_FI>::value_type type1;
+		typedef typename iterator_traits<_FI>::value_type type2;
 		static_assert(
-		    std::is_same<type1, type1>::value,
+		    std::is_same<type1, type2>::value,
 		    "relocation is only possible for values of the same type");
 
 		_FI curr = result;
-		for (; first != last; ++first, (void)++curr;)
+		for (; first != last; ++first, (void)++curr)
 			leestl::_relocate_object(leestl::address_of(*curr), leestl::address_of(*first));
 
 		return curr;

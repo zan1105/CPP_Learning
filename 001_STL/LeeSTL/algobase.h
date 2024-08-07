@@ -82,17 +82,13 @@ namespace leestl {
 
 	// 不检查合法性的对象复制实现
 	template <typename _II, typename _OI>
-	constexpr inline _OI _unchecked_copy(_II first, _II last, _OI result) {
-		return _unchecked_copy_a(first, last, result, iterator_traits<_II>::iterator_category);
+	constexpr inline _OI _unchecked_copy(_II first, _II last, _OI result, std::false_type) {
+		return _unchecked_copy_a(first, last, result, leestl::iterator_category_types<_II>());
 	}
 
 	// 针对trivially_copy_assignable提供特化版本的不检查合法性的对象复制实现
 	template <typename _II, typename _OI>
-	constexpr inline typename std::enable_if<
-	    std::is_same<typename std::remove_const<_II>::type, _OI>::value &&
-	        std::is_trivially_copy_assignable<_OI>::value,
-	    _OI *>::type
-	_unchecked_copy(_II first, _II last, _OI result) {
+	constexpr inline _OI _unchecked_copy(_II first, _II last, _OI result, std::true_type) {
 		for (; first != last; ++result, (void)++first) *result = leestl::move(*first);
 		return result;
 	}
@@ -109,7 +105,11 @@ namespace leestl {
 	 */
 	template <typename _II, typename _OI>
 	constexpr inline _OI copy(_II first, _II last, _OI result) {
-		_unchecked_copy(first, last, result);
+		return _unchecked_copy(
+		    first, last, result,
+		    std::conditional_t < std::is_same_v<std::remove_const_t<_II>, _OI> &&
+		        std::is_trivially_copy_assignable_v<_OI>,
+		    std::true_type, std::false_type > ());
 	}
 
 	// 用于非标量的 unchecked_fill 实现
@@ -201,7 +201,7 @@ namespace leestl {
 	 */
 	template <typename _OI, typename _Size, typename T>
 	inline _OI fill_n(_OI first, _Size n, const T &value) {
-		return _unchecked_fill_n(first, n, value, iterator_traits<_OI>::iterator_category);
+		return _unchecked_fill_n(first, n, value, leestl::iterator_category_types<_OI>());
 	}
 
 }    // namespace leestl

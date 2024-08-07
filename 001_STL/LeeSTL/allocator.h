@@ -41,19 +41,19 @@ namespace leestl {
 
 	template <typename T>
 	T* allocator<T>::allocate() {
-		return static_cast<T*>(::new (sizeof(T)));
+		return static_cast<T*>(::operator new(sizeof(T)));
 	}
 
 	template <typename T>
 	T* allocator<T>::allocate(size_type n) {
 		if (n == 0) return nullptr;
-		return static_cast<T*>(::new (n * sizeof(T)));
+		return static_cast<T*>(::operator new(n * sizeof(T)));
 	}
 
 	template <typename T>
 	void allocator<T>::deallocate(T* ptr) {
 		if (ptr == nullptr) return;
-		::operator delete ptr;
+		::operator delete(ptr);
 	}
 
 	template <typename T>

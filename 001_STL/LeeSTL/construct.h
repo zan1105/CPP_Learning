@@ -43,10 +43,10 @@ namespace leestl {
 	}
 
 	template <typename _ForwardIterator>
-	void __destory(_ForwardIterator, _ForwardIterator, leestl::true_type) {}
+	void __destory(_ForwardIterator, _ForwardIterator, std::true_type) {}
 
 	template <typename _ForwardIterator>
-	void __destory(_ForwardIterator first, _ForwardIterator last, leestl::false_type) {
+	void __destory(_ForwardIterator first, _ForwardIterator last, std::false_type) {
 		for (; first != last; ++first) destory(&*first);
 	}
 
