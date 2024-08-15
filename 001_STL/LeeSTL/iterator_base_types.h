@@ -110,5 +110,45 @@ namespace leestl {
 		return _distance(first, last, iterator_category_types<_Iter>{});
 	}
 
+	// 使用于输入迭代器的 advance 实现
+	template <typename _IT, typename _Distance>
+	inline constexpr void _advance(_IT &it, _Distance n, input_interator_tag) {
+		while (n--) ++it;
+	}
+
+	// 适用于双向迭代器的 advance 实现
+	template <typename _IT, typename _Distance>
+	inline constexpr void _advance(_IT &it, _Distance n, bidirectional_interator_tag) {
+		if (n > 0)
+			while (n--) ++it;
+		else
+			while (n++) --it;
+	}
+
+	// 适用于随机访问迭代器的 advance 实现
+	template <typename _IT, typename _Distance>
+	inline constexpr void _advance(_IT &it, _Distance n, random_acess_interator_tag) {
+		if (__builtin_constant_p(n) && n == 1)
+			++it;
+		else if (__builtin_constant_p(n) && n == -1)
+			--it;
+		else
+			it += n;
+	}
+
+	/**
+	 * @brief 迭代器前进 n 步
+	 *
+	 * @tparam _Iter 迭代器类型
+	 * @tparam _Distance 前进的步数
+	 * @param it 迭代器
+	 * @param n 前进的步数
+	 */
+	template <typename _Iter, typename _Distance>
+	inline constexpr void advance(_Iter &it, _Distance n) {
+		typename iterator_traits<_Iter>::difference_type __d = n;
+		_advance(it, __d, iterator_category_types<_Iter>{});
+	}
+
 }    // namespace leestl
 #endif
