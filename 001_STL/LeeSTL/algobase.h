@@ -204,6 +204,84 @@ namespace leestl {
 		return _unchecked_fill_n(first, n, value, leestl::iterator_category_types<_OI>());
 	}
 
+	// 适用于输入迭代器的反向对象复制
+	template <typename _BI1, typename _BI2>
+	inline _BI2 _copy_backward_a(_BI1 first, _BI1 last, _BI2 result, leestl::input_interator_tag) {
+		while (first != last) *--result = *--last;
+		return result;
+	}
+
+	// 适用于随机访问迭代器的反向对象复制
+	template <typename _BI1, typename _BI2>
+	inline _BI2 _copy_backward_a(
+	    _BI1 first, _BI1 last, _BI2 result, leestl::random_acess_interator_tag) {
+		for (auto n = last - first; n > 0; --n) *--result = *--last;
+		return result;
+	}
+
+	// 不检查合法性的 copy_backward 实现
+	template <typename _BI1, typename _BI2>
+	inline _BI2 _copy_backward(_BI1 first, _BI1 last, _BI2 result) {
+		return _copy_backward_a(first, last, result, leestl::iterator_category_types<_BI1>());
+	}
+
+	// 针对 trivially_copy_assignable 提供特化版本的 copy_backward 实现
+	template <typename _BI1, typename _BI2>
+	inline std::enable_if_t<
+	    std::is_same_v<std::remove_const_t<_BI1>, _BI2> &&
+	        std::is_trivially_copy_assignable_v<_BI2>,
+	    _BI2 *>
+	_copy_backward(_BI1 *first, _BI1 *last, _BI2 *result) {
+		const size_t n = static_cast<size_t>(last - first);
+		if (n != 0) __builtin_memmove(result - n, first - n, n * sizeof(*first));
+		return result - n;
+	}
+
+	// 反向复制[first, last)上的元素到 result 之前
+	template <typename _BI1, typename _BI2>
+	inline _BI2 copy_backward(_BI1 first, _BI1 last, _BI2 result) {
+		return _copy_backward(first, last, result);
+	}
+
+	// 适用于输入迭代器的反向对象移动
+	template <typename _BI1, typename _BI2>
+	inline _BI2 _move_backward_a(_BI1 first, _BI1 last, _BI2 result, leestl::input_interator_tag) {
+		while (first != last) *--result = leestl::move(*--last);
+		return result;
+	}
+
+	// 适用于随机访问迭代器的反向对象移动
+	template <typename _BI1, typename _BI2>
+	inline _BI2 _move_backward_a(
+	    _BI1 first, _BI1 last, _BI2 result, leestl::random_acess_interator_tag) {
+		for (auto n = last - first; n > 0; --n) *--result = leestl::move(*--last);
+		return result;
+	}
+
+	// 不检查合法性的 move_backward 实现
+	template <typename _BI1, typename _BI2>
+	inline _BI2 _move_backward(_BI1 first, _BI1 last, _BI2 result) {
+		return _move_backward_a(first, last, result, leestl::iterator_category_types<_BI1>());
+	}
+
+	// 针对 trivially_move_assignable 提供特化版本的 move_backward 实现
+	template <typename _BI1, typename _BI2>
+	inline std::enable_if_t<
+	    std::is_same_v<std::remove_const_t<_BI1>, _BI2> &&
+	        std::is_trivially_move_assignable_v<_BI2>,
+	    _BI2 *>
+	_move_backward(_BI1 *first, _BI1 *last, _BI2 *result) {
+		const size_t n = static_cast<size_t>(last - first);
+		if (n != 0) __builtin_memmove(result - n, first - n, n * sizeof(*first));
+		return result - n;
+	}
+
+	// 反向移动[first, last)上的元素到 result 之前
+	template <typename _BI1, typename _BI2>
+	inline _BI2 move_backward(_BI1 first, _BI1 last, _BI2 result) {
+		return _move_backward(first, last, result);
+	}
+
 }    // namespace leestl
 
 #endif
