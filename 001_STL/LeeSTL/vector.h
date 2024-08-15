@@ -16,7 +16,7 @@
 namespace leestl {
 	template <typename T>
 	class vector {
-		static_assert(!std::is_same<bool, T>::value, "leestl中禁止使用vector<bool>!");
+		static_assert(!std::is_same<bool, T>::value, "leestl's vector can't support bool!");
 
 	public:
 		typedef leestl::allocator<T> allocator_type;    // 配置器类型
@@ -117,6 +117,47 @@ namespace leestl {
 			data_allocator::deallocate(start, capacity());
 		}
 
+		// 赋值操作符
+		// 复制赋值
+		vector& operator=(const vector& x) {
+			if (this != &x) {
+				const size_type len = x.size();
+				if (len > capacity()) {
+					pointer new_start = _alloc_and_copy(len, x.begin(), x.end());
+					leestl::destory(start, finish);
+					data_allocator::deallocate(start, capacity());
+					start = new_start;
+					end_of_storage = start + len;
+				} else if (len <= size()) {
+					leestl::destory(leestl::copy(x.begin(), x.end(), start), finish);
+				} else {
+					leestl::copy(x.begin(), x.begin() + size(), start);
+					uninitialized_copy(x.begin() + size(), x.end(), finish);
+				}
+				finish = start + len;
+			}
+			return *this;
+		}
+
+		// 移动赋值
+		vector& operator=(vector&& x) noexcept {
+			if (this != &x) {
+				leestl::destory(start, finish);
+				data_allocator::deallocate(start, capacity());
+				start = x.start;
+				finish = x.finish;
+				end_of_storage = x.end_of_storage;
+				x.start = x.finish = x.end_of_storage = nullptr;
+			}
+			return *this;
+		}
+
+		// 初始化列表赋值
+		vector& operator=(std::initializer_list<value_type> il) {
+			_assign_aux(il.begin(), il.end(), leestl::random_acess_interator_tag());
+			return *this;
+		}
+
 		// 迭代器相关操作
 		iterator               begin() noexcept { return start; }
 		const_iterator         begin() const noexcept { return start; }
@@ -136,6 +177,10 @@ namespace leestl {
 		size_type size() const noexcept { return size_type(finish - start); }
 		size_type max_size() const noexcept { return size_type(-1) / sizeof(T); }
 		size_type capacity() const noexcept { return size_type(end_of_storage - start); }
+
+		// 修改容器相关操作
+		// 插入元素
+		iterator insert(const_iterator pos, const value_type& value);
 
 	private:
 		// 构造函数用该方法检查初始化长度是否合法
@@ -177,6 +222,134 @@ namespace leestl {
 			return (len < size() || len > max_size()) ? max_size() : len;
 		}
 
+		// 重新分配空间并复制元素
+		template <typename _FI>
+		pointer _alloc_and_copy(size_type n, _FI first, _FI last) {
+			pointer result = data_allocator::allocate(n);
+			try {
+				leestl::uninitialized_copy(first, last, result);
+				return result;
+			} catch (...) {
+				data_allocator::deallocate(result, n);
+				throw;
+			}
+		}
+
+		// 从 pos 处开始擦除元素
+		void _erase_at_end(pointer pos) {
+			if (size_type n = finish - pos) {
+				leestl::destory(pos, finish);
+				finish = pos;
+				// shrink_to_fit();
+			}
+		}
+
+		// 在 pos 处插入元素
+		template <typename _Arg>
+		void _insert_aux(iterator pos, _Arg&& arg) {
+			if (finish != end_of_storage) {
+				leestl::construct(leestl::address_of(*finish), leestl::move(*(finish - 1)));
+				++finish;
+				leestl::move_backward(pos, finish - 2, finish - 1);
+				*pos = leestl::forward<_Arg>(arg);
+			} else {
+				_realloc_insert(pos, leestl::forward<_Arg>(arg));
+			}
+		}
+
+		// 适用于输入迭代器的范围插入
+		template <typename _II>
+		void _range_insert(iterator pos, _II first, _II last, leestl::input_interator_tag) {
+			if (pos == end()) {
+				for (; first != last; ++first) insert(end(), *first);
+			} else if (first != last) {
+				vector tmp(first, last);
+				insert(pos, tmp.begin(), tmp.end());
+			}
+		}
+
+		// 适用于前向迭代器的范围插入
+		template <typename _FI>
+		void _range_insert(iterator pos, _FI first, _FI last, leestl::forward_interator_tag) {
+			if (first != last) {
+				const size_type n = leestl::distance(first, last);
+				if (size_type(end_of_storage - finish) >= n) {     // 空间足够
+					const size_type elems_after = finish - pos;    // pos 后的元素个数
+					pointer         old_finish(finish);
+					if (elems_after > n) {    // pos 到 finish 的空间足够容纳 n 个元素
+						finish = leestl::uninitialized_move(
+						    finish - n, finish,
+						    finish);    // 将后 n 个元素移动到未初始化的finish后面
+						leestl::move_backward(
+						    pos, old_finish - n,
+						    old_finish);    // 将剩余需要后移的元素移动到 old_finish 前面
+						leestl::copy(first, last, pos);    // 将新的 n 个元素插入到 pos 后面
+					} else {    // pos 到 finish 的空间不足容纳 n 个元素
+						_FI mid = first;
+						leestl::advance(mid, elems_after);
+						finish = uninitialized_copy(mid, last, finish);
+						finish = uninitialized_move(pos, old_finish, finish);
+						leestl::copy(first, mid, pos);
+					}
+				} else {
+					pointer old_start = start;
+					pointer old_finish = finish;
+
+					const size_type len = _check_len(n, "size of vector is too big.");
+
+					pointer new_start = data_allocator::allocate(len);
+					pointer new_finish(new_start);
+
+					try {
+						new_finish = leestl::uninitialized_move(old_start, pos, new_finish);
+						new_finish = leestl::uninitialized_copy(first, last, new_finish);
+						new_finish = leestl::uninitialized_move(pos, old_finish, new_finish);
+					} catch (...) {
+						leestl::destory(new_start, new_finish);
+						data_allocator::deallocate(new_start, len);
+						throw;
+					}
+
+					leestl::destory(old_start, old_finish);
+					data_allocator::deallocate(old_start, capacity());
+					start = new_start;
+					finish = new_finish;
+					end_of_storage = new_start + len;
+				}
+			}
+		}
+
+		// 适用于输入迭代器的 vector 赋值
+		template <typename _II>
+		void _assign_aux(_II first, _II last, leestl::input_interator_tag) {
+			pointer cur = start;
+			for (; first != last && cur != finish; ++cur, (void)++first) *cur = *first;
+			if (first == last)
+				_erase_at_end(cur);
+			else
+				_range_insert(end(), first, last, leestl::iterator_category_types<_II>());
+		}
+
+		// 适用于前向迭代器的 vector 赋值
+		template <typename _FI>
+		void _assign_aux(_FI first, _FI last, leestl::forward_interator_tag) {
+			const size_type len = leestl::distance(first, last);
+			if (len > capacity()) {
+				pointer new_start = _alloc_and_copy(len, first, last);
+				leestl::destory(start, finish);
+				data_allocator::deallocate(start, capacity());
+				start = new_start;
+				end_of_storage = finish = start + len;
+			} else if (size() >= len) {
+				_erase_at_end(leestl::copy(first, last, start));
+			} else {
+				_FI mid = first;
+				leestl::advance(mid, size());
+				leestl::copy(first, mid, start);
+				finish = uninitialized_copy(mid, last, finish);
+			}
+		}
+
 		// 空间不足时重新分配空间后在 pos 插入元素
 		template <typename... Args>
 		void _realloc_insert(iterator pos, Args&&... args);
@@ -210,6 +383,25 @@ namespace leestl {
 		finish = new_finish;
 		end_of_storage = new_start + new_len;
 	}
+
+	template <typename T>
+	typename vector<T>::iterator vector<T>::insert(const_iterator pos, const value_type& value) {
+		const size_type n = pos - start;
+		if (finish != end_of_storage) {
+			if (pos == end()) {
+				data_allocator::construct(leestl::address_of(*finish), value);
+				++finish;
+			} else {
+				const auto _pos = begin() + (pos - cbegin());
+				auto       value_copy = value;
+				_insert_aux(_pos, leestl::move(value_copy));
+			}
+		} else
+			_realloc_insert(begin() + (pos - cbegin()), value);
+
+		return iterator(start + n);
+	}
+
 }    // namespace leestl
 
 #endif
