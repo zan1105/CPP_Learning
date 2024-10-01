@@ -21,11 +21,11 @@ AllowAllParametersOfDeclarationOnNextLine: false
 # 允许短的块放在同一行
 AllowShortBlocksOnASingleLine: true
 # 允许短的case标签放在同一行
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 # 允许短的函数放在同一行: None, InlineOnly(定义在类中), Empty(空函数), Inline(定义在类中，空函数), All
 AllowShortFunctionsOnASingleLine: Inline
 # 允许短的if语句保持在同一行
-AllowShortIfStatementsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 # 允许短的循环保持在同一行
 AllowShortLoopsOnASingleLine: true
 # 总是在返回类型后换行: None, All, TopLevel(顶级函数，不包括在类中的函数),  # AllDefinitions(所有的定义，不包括声明), TopLevelDefinitions(所有的顶级函数的定义)
@@ -36,6 +36,8 @@ AlwaysBreakTemplateDeclarations: true
 BinPackArguments: true
 # false表示所有形参要么都在同一行，要么都各自一行
 BinPackParameters: true
+# 大括号的样式: Attach, Linux, Stroustrup, Allman, GNU, Whitesmiths, Mozilla, WebKit, Pico, Ratliff, 1TBS
+BreakBeforeBraces: Custom
 # 大括号的换行
 BraceWrapping:
   AfterClass: false
@@ -47,8 +49,6 @@ BraceWrapping:
   BeforeCatch: false
   BeforeElse: false
   IndentBraces: false
-# 大括号的样式: Attach, Linux, Stroustrup, Allman, GNU, Whitesmiths, Mozilla, WebKit, Pico, Ratliff, 1TBS
-BreakBeforeBraces: Custom
 # 构造函数的初始化列表换行
 BreakConstructorInitializers: AfterColon
 # 每行字符的限制，0表示没有限制
