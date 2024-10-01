@@ -352,10 +352,8 @@ namespace leestl {
 		void _assign_aux(_II first, _II last, leestl::input_interator_tag) {
 			pointer cur = start;
 			for (; first != last && cur != finish; ++cur, (void)++first) *cur = *first;
-			if (first == last)
-				_erase_at_end(cur);
-			else
-				_range_insert(end(), first, last, leestl::iterator_category_types<_II>());
+			if (first == last) _erase_at_end(cur);
+			else _range_insert(end(), first, last, leestl::iterator_category_types<_II>());
 		}
 
 		// 适用于前向迭代器的 vector 赋值
@@ -392,8 +390,7 @@ namespace leestl {
 				} else {
 					_insert_aux(begin + n, leestl::move(value));
 				}
-			} else
-				_realloc_insert(begin() + n, leestl::move(value));
+			} else _realloc_insert(begin() + n, leestl::move(value));
 
 			return iterator(start + n);
 		}
@@ -487,8 +484,7 @@ namespace leestl {
 				auto       value_copy = value;
 				_insert_aux(_pos, leestl::move(value_copy));
 			}
-		} else
-			_realloc_insert(begin() + (pos - cbegin()), value);
+		} else _realloc_insert(begin() + (pos - cbegin()), value);
 
 		return iterator(start + n);
 	}
