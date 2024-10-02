@@ -13,8 +13,8 @@
 > 1. 单一职责原则 (Single Responsibility Principle, SRP)：一个类只负责一个职责，即一个类只有一个引起它变化的原因。
 > 2. 开闭原则 (Open-Closed Principle, OCP)：对扩展开放，对修改关闭。
 > 3. 里氏替换原则 (Liskov Substitution Principle, LSP)：子类可以替换父类并且可以正常工作。
-> 4. 依赖倒置原则 (Dependency Inversion Principle, DIP)：高层模块不应该依赖低层模块，两者都应该依赖其抽象。抽象不应该依赖细节，细节应该依赖抽象。
-> 5. 接口隔离原则 (Interface Segregation Principle, ISP)：客户端不应该依赖它不需要的接口，一个类对另一个类的依赖应该建立在最小的接口上。
+> 4. 依赖倒置原则 (Dependency Inversion Principle, DIP)：高层模块不应该依赖低层模块，两者都应依赖其抽象。抽象不应该依赖细节，细节应该依赖抽象。
+> 5. 接口隔离原则 (Interface Segregation Principle, ISP)：对象不应依赖无关接口，类间依赖应该建立在最小的接口上。
 > 6. 迪米特法则 (Law of Demeter, LoD)：一个对象应该对其他对象保持最少的了解。
 > 7. 组合复用原则 (Composite Reuse Principle, CRP)：尽量使用组合/聚合的方式，而不是使用继承。
 
