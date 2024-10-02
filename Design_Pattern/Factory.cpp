@@ -1,4 +1,13 @@
-// 抽象工厂模式 - 智能电子产品工厂
+/**
+ * @file Factory.cpp
+ * @author Lee ZanZan (leezanzan@outlook.com)
+ * @brief
+ * @version 0.1
+ * @date 2024-10-02
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 
 #include <bits/stdc++.h>
 using namespace std;
