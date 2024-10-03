@@ -39,7 +39,6 @@ int main() {
 
 	cloneA->show();
 	cloneB->show();
-
 	delete prototypeA;
 	delete prototypeB;
 	delete cloneA;
