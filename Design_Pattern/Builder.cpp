@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 建造者模式（Builder Pattern）将一个复杂对象的构建与它的表示分离，
  * @copyright Copyright (c) 2024
  *
  */

@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 外观模式（Facade Pattern）为子系统中的一组接口提供一个一致的界面，
  * @copyright Copyright (c) 2024
  *
  */

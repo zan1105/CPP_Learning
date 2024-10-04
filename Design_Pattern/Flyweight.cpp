@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 享元模式（Flyweight Pattern）运用共享技术有效地支持大量细粒度的对象。
  * @copyright Copyright (c) 2024
  *
  */

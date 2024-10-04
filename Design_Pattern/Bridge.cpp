@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 桥接模式（Bridge Pattern）将抽象部分与它的实现部分分离，使它们可以独立地变化。
  * @copyright Copyright (c) 2024
  *
  */

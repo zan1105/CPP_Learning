@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 单例模式（Singleton Pattern）确保一个类只有一个实例，并提供一个全局访问点。
  * @copyright Copyright (c) 2024
  *
  */

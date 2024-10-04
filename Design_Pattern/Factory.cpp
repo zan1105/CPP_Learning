@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 工厂模式（Factory Pattern）定义一个用于创建对象的接口，让子类决定实例化哪一个类。
  * @copyright Copyright (c) 2024
  *
  */
@@ -111,13 +112,9 @@ int main() {
 	factories.push_back(new LaptopFactory());
 
 	vector<Product *> products;
-	for (auto factory : factories) {
-		products.push_back(factory->createProduct());
-	}
+	for (auto factory : factories) { products.push_back(factory->createProduct()); }
 
-	for (auto product : products) {
-		product->manufacture();
-	}
+	for (auto product : products) { product->manufacture(); }
 
 	for (int i = 0; i < factories.size(); i++) {
 		delete factories[i];

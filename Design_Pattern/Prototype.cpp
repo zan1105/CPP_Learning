@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-10-02
  *
+ * 原型模式（Prototype Pattern）用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
  * @copyright Copyright (c) 2024
  *
  */
