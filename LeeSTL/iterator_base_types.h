@@ -128,12 +128,11 @@ namespace leestl {
 	// 适用于随机访问迭代器的 advance 实现
 	template <typename _IT, typename _Distance>
 	inline constexpr void _advance(_IT &it, _Distance n, random_acess_interator_tag) {
-		if (__builtin_constant_p(n) && n == 1)
+		if (__builtin_constant_p(n) && n == 1)    // n 是常量时编译优化，直接生成递增指令
 			++it;
-		else if (__builtin_constant_p(n) && n == -1)
+		else if (__builtin_constant_p(n) && n == -1)    // n 是常量时编译优化，直接生成递减指令
 			--it;
-		else
-			it += n;
+		else it += n;    // n 是变量时，计算后赋值
 	}
 
 	/**

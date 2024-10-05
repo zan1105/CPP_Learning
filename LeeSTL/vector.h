@@ -209,6 +209,18 @@ namespace leestl {
 			return begin() + _offset;
 		}
 
+		// 删除元素
+		iterator erase(const_iterator pos);                           // 删除指定位置元素
+		iterator erase(const_iterator first, const_iterator last);    // 删除指定范围元素
+
+		void swap(vector& x) noexcept {
+			// leestl::swap(start, x.start);
+			// leestl::swap(finish, x.finish);
+			// leestl::swap(end_of_storage, x.end_of_storage);
+		}
+
+		// void clear() noexcept { _erase_at_end(start); }
+
 	private:
 		// 构造函数用该方法检查初始化长度是否合法
 		static size_type _check_init_len(size_type n) {
@@ -487,6 +499,23 @@ namespace leestl {
 		} else _realloc_insert(begin() + (pos - cbegin()), value);
 
 		return iterator(start + n);
+	}
+
+	template <typename T>
+	typename vector<T>::iterator vector<T>::erase(const_iterator _pos) {
+		if (_pos + 1 != end()) leestl::move(_pos + 1, end(), _pos);
+		--finish;
+		leestl::destory(leestl::address_of(*finish));
+		return iterator(_pos);
+	}
+
+	template <typename T>
+	typename vector<T>::iterator vector<T>::erase(const_iterator _first, const_iterator _last) {
+		if (_first != _last) {
+			if (_last != end()) leestl::move(_last, end(), _first);
+			_erase_at_end(start + (end() - _last));
+		}
+		return iterator(_first);
 	}
 
 }    // namespace leestl

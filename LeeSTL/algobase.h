@@ -88,9 +88,11 @@ namespace leestl {
 
 	// 针对trivially_copy_assignable提供特化版本的不检查合法性的对象复制实现
 	template <typename _II, typename _OI>
-	constexpr inline _OI _unchecked_copy(_II first, _II last, _OI result, std::true_type) {
-		for (; first != last; ++result, (void)++first) *result = leestl::move(*first);
-		return result;
+	constexpr inline _OI *_unchecked_copy(_II *first, _II *last, _OI *result, std::true_type) {
+		const ptrdiff_t _num = last - first;
+		if (__builtin_expect(_num > 1, true)) __builtin_memmove(result, first, sizeof(_II) * _num);
+		else if (_num == 1) *result = *first;
+		return result + _num;
 	}
 
 	/**
@@ -106,6 +108,51 @@ namespace leestl {
 	template <typename _II, typename _OI>
 	constexpr inline _OI copy(_II first, _II last, _OI result) {
 		return _unchecked_copy(
+		    first, last, result,
+		    std::conditional_t < std::is_same_v<std::remove_const_t<_II>, _OI> &&
+		        std::is_trivially_copy_assignable_v<_OI>,
+		    std::true_type, std::false_type > ());
+	}
+
+	// 适用于输入迭代器的对象移动
+	template <typename _II, typename _OI>
+	_OI _unchecked_move_a(_II first, _II last, _OI result, leestl::input_interator_tag) {
+		for (; first != last; ++result, (void)++first) *result = leestl::move(*first);
+		return result;
+	}
+
+	// 针对随机访问迭代器优化的对象移动
+	template <typename _RI, typename _OI>
+	_OI _unchecked_move_a(_RI first, _RI last, _OI result, leestl::random_acess_interator_tag) {
+		for (auto n = last - first; n > 0; --n, ++result, ++first) *result = leestl::move(*first);
+		return result;
+	}
+
+	// 不检查合法性的对象移动实现
+	template <typename _II, typename _OI>
+	constexpr inline _OI _unchecked_move(_II first, _II last, _OI result, std::false_type) {
+		return _unchecked_move_a(first, last, result, leestl::iterator_category_types<_II>());
+	}
+
+	// 针对trivially_move_assignable提供特化版本的不检查合法性的对象移动实现
+	template <typename _II, typename _OI>
+	constexpr inline _OI *_unchecked_move(_II *first, _II *last, _OI *result, std::true_type) {
+		return _unchecked_copy(first, last, result, std::true_type());
+	}
+
+	/**
+	 * @brief 把 [first, last) 上的内容移动到以 result 为起始处的空间
+	 *
+	 * @tparam _II 原始空间的迭代器类型
+	 * @tparam _OI 目标空间的迭代器类型
+	 * @param first 原始空间的起始位置
+	 * @param last 原始空间的终止位置
+	 * @param result 目标空间的起始位置
+	 * @return _OI 目标空间的尾部
+	 */
+	template <typename _II, typename _OI>
+	constexpr inline _OI move(_II first, _II last, _OI result) {
+		return _unchecked_move(
 		    first, last, result,
 		    std::conditional_t < std::is_same_v<std::remove_const_t<_II>, _OI> &&
 		        std::is_trivially_copy_assignable_v<_OI>,

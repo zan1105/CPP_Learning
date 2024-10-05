@@ -30,10 +30,10 @@ namespace leestl {
 
 	// 析构对象
 	template <typename T>
-	void _destory(T *, leestl::true_type) {}
+	void _destory(T *, std::true_type) {}
 
 	template <typename T>
-	void _destory(T *ptr, leestl::false_type) {
+	void _destory(T *ptr, std::false_type) {
 		if (ptr != nullptr) ptr->~T();
 	}
 

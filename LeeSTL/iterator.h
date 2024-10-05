@@ -7,8 +7,8 @@
 #ifndef _LEESTL_ITERATOR_H_
 #define _LEESTL_ITERATOR_H_ 1
 
-#include "type_traits.h"
 #include "iterator_base_types.h"
+#include "type_traits.h"
 
 namespace leestl {
 
